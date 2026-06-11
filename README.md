@@ -43,7 +43,19 @@ composer-cli compose start test tar
 
 ## Environment Variables
 
-- `MANIFEST_ONLY=1` - Use `image-builder-cli manifest` instead of `build` (for fast testing). Make sure to use `sudo -E` to pass it on.
+- `MANIFEST_ONLY=1` - Use `image-builder manifest` instead of `build` (for fast testing). Make sure to use `sudo -E` to pass it on.
+- `WELDR_DEFAULT_ARCH` - Override default architecture (default: auto-detected from system, e.g., `x86_64`, `aarch64`)
+- `WELDR_DEFAULT_DISTRO` - Override default distro (default: auto-detected from `/etc/os-release`, e.g., `fedora-43`, `rhel-10`)
+
+The default architecture is detected from the system's runtime architecture:
+- `amd64` → `x86_64`
+- `arm64` → `aarch64`
+- `ppc64le` → `ppc64le`
+- `s390x` → `s390x`
+
+The default distro is detected from `/etc/os-release` (ID and VERSION_ID fields).
+
+**Note:** Blueprints can specify their own `distro` and `architecture` fields. When present in the blueprint, these values take priority over the defaults. This allows per-blueprint control of target distribution and architecture.
 
 ## Testing
 

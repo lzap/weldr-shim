@@ -382,6 +382,17 @@ func handleComposeStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Determine distro and arch: prioritize blueprint, fallback to defaults
+	distro := bp.Distro
+	if distro == "" {
+		distro = defaultDistro
+	}
+
+	arch := bp.Arch
+	if arch == "" {
+		arch = defaultArch
+	}
+
 	// Create compose
 	composeID := uuid.New().String()
 	metadata := ComposeMetadata{
@@ -389,8 +400,8 @@ func handleComposeStart(w http.ResponseWriter, r *http.Request) {
 		BlueprintName:    bp.Name,
 		BlueprintVersion: bp.Version,
 		ComposeType:      req.ComposeType,
-		Distro:           "fedora-43", // Default, will be configurable later
-		Arch:             "x86_64",    // Default, will be configurable later
+		Distro:           distro,
+		Arch:             arch,
 		Created:          time.Now(),
 	}
 

@@ -9,20 +9,96 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"syscall"
 	"time"
 )
 
 var (
-	socketPath = flag.String("socket", "/run/weldr/api.socket", "Unix socket path")
-	cacheDir   = flag.String("cache-dir", "/var/cache/weldr-shim", "Cache directory path")
+	socketPath    = flag.String("socket", "/run/weldr/api.socket", "Unix socket path")
+	cacheDir      = flag.String("cache-dir", "/var/cache/weldr-shim", "Cache directory path")
+	defaultArch   string
+	defaultDistro string
 )
+
+// initializeDefaults sets default architecture and distro from system detection
+// or environment variables WELDR_DEFAULT_ARCH and WELDR_DEFAULT_DISTRO
+func initializeDefaults() {
+	// Detect architecture
+	defaultArch = os.Getenv("WELDR_DEFAULT_ARCH")
+	if defaultArch == "" {
+		// Map Go runtime.GOARCH to image-builder architecture names
+		switch runtime.GOARCH {
+		case "amd64":
+			defaultArch = "x86_64"
+		case "arm64":
+			defaultArch = "aarch64"
+		case "ppc64le":
+			defaultArch = "ppc64le"
+		case "s390x":
+			defaultArch = "s390x"
+		default:
+			defaultArch = "x86_64" // Fallback
+		}
+	}
+
+	// Detect distro
+	defaultDistro = os.Getenv("WELDR_DEFAULT_DISTRO")
+	if defaultDistro == "" {
+		defaultDistro = detectDistro()
+	}
+}
+
+// detectDistro attempts to detect the current distro from /etc/os-release
+func detectDistro() string {
+	data, err := os.ReadFile("/etc/os-release")
+	if err != nil {
+		return "unknown" // Fallback
+	}
+
+	var id, versionID string
+	for _, line := range strings.Split(string(data), "\n") {
+		if val, found := strings.CutPrefix(line, "ID="); found {
+			id = strings.Trim(val, "\"")
+		}
+		if val, found := strings.CutPrefix(line, "VERSION_ID="); found {
+			versionID = strings.Trim(val, "\"")
+		}
+	}
+
+	// Map OS to image-builder distro names
+	switch id {
+	case "fedora":
+		if versionID != "" {
+			return "fedora-" + versionID
+		}
+		return "unknown"
+	case "rhel":
+		if versionID != "" {
+			return "rhel-" + strings.Split(versionID, ".")[0]
+		}
+		return "unknown"
+	case "centos":
+		if versionID != "" {
+			return "centos-" + versionID
+		}
+		return "unknown"
+	default:
+		return "unknown" // Fallback
+	}
+}
 
 func main() {
 	flag.Parse()
 
 	log.SetPrefix("")
 	log.SetFlags(0)
+
+	// Initialize defaults
+	initializeDefaults()
+	log.Printf("Default architecture: %s", defaultArch)
+	log.Printf("Default distro: %s", defaultDistro)
 
 	// Detect image-builder binary
 	if err := DetectImageBuilder(); err != nil {
