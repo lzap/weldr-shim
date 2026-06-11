@@ -17,6 +17,10 @@ all: build
 build:
 	go build $(LDFLAGS) -o $(BINARY_NAME) .
 
+# Start the service
+start: build
+	sudo ./$(BINARY_NAME)
+
 # Install binary
 install: build
 	install -D -m 0755 $(BINARY_NAME) $(DESTDIR)$(BINDIR)/$(BINARY_NAME)

@@ -1,0 +1,12 @@
+name = "test"
+description = "Test blueprint"
+distro = "centos-10"
+version = "1.0.0"
+
+[[packages]]
+name = "bash"
+version = "*"
+
+[[packages]]
+name = "curl"
+version = "*"

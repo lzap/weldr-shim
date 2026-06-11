@@ -11,6 +11,34 @@ import (
 	"time"
 )
 
+// prefixWriter wraps log output with a prefix and writes line by line
+type prefixWriter struct {
+	prefix string
+	buffer []byte
+}
+
+func (pw *prefixWriter) Write(p []byte) (n int, err error) {
+	// Append to buffer
+	pw.buffer = append(pw.buffer, p...)
+
+	// Process complete lines
+	for {
+		idx := strings.IndexByte(string(pw.buffer), '\n')
+		if idx == -1 {
+			break
+		}
+
+		// Extract line (without newline)
+		line := string(pw.buffer[:idx])
+		pw.buffer = pw.buffer[idx+1:]
+
+		// Log with prefix
+		log.Printf("%s%s", pw.prefix, line)
+	}
+
+	return len(p), nil
+}
+
 // processQueue runs the build queue processor
 func processQueue(cacheDir string) {
 	log.Printf("Queue processor started")
@@ -92,11 +120,13 @@ func executeCompose(cacheDir, uuid string) error {
 	if manifestOnly {
 		args = []string{
 			"manifest",
+			"--verbose",
 			metadata.ComposeType,
 		}
 	} else {
 		args = []string{
 			"build",
+			"--verbose",
 			metadata.ComposeType,
 		}
 	}
@@ -122,6 +152,12 @@ func executeCompose(cacheDir, uuid string) error {
 
 	// Create command
 	cmd := exec.Command(imageBuilderBinary, args...)
+
+	// Create log writer with UUID prefix
+	logWriter := &prefixWriter{prefix: fmt.Sprintf("[%s] ", uuid)}
+	cmd.Stdout = logWriter
+	cmd.Stderr = logWriter
+
 	log.Printf("[%s] Executing: %s %s", uuid, imageBuilderBinary, joinArgs(args))
 
 	// Start the process

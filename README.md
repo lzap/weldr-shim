@@ -27,17 +27,18 @@ make
 
 ## Usage
 
+Requires root for /run/weldr/api.socket and some image builds.
+
 ```bash
-# Run (requires root for /run/weldr/api.socket and some image builds)
 sudo ./weldr-shim
+```
 
-# Custom socket and cache directory
-sudo ./weldr-shim --socket /tmp/weldr.socket --cache-dir /tmp/weldr-shim
+Then simply use the `weldr-client`:
 
-# Use with composer-cli
+```bash
 composer-cli status show
-composer-cli blueprints push my-blueprint.toml
-composer-cli compose start my-blueprint qcow2
+composer-cli blueprints push test.toml
+composer-cli compose start test tar
 ```
 
 ## Environment Variables

@@ -21,8 +21,8 @@ var (
 func main() {
 	flag.Parse()
 
-	log.SetPrefix("weldr-shim: ")
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.SetPrefix("")
+	log.SetFlags(0)
 
 	// Detect image-builder binary
 	if err := DetectImageBuilder(); err != nil {
