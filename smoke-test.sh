@@ -5,7 +5,7 @@ set -e
 export MANIFEST_ONLY=1
 
 echo "==> Building weldr-shim"
-go build -o /tmp/weldr-shim .
+go build -o weldr-shim .
 
 # Check if service is already running
 if composer-cli status show >/dev/null 2>&1; then
@@ -14,7 +14,7 @@ if composer-cli status show >/dev/null 2>&1; then
 else
     # Start service in background
     echo "==> Starting weldr-shim"
-    sudo -E /tmp/weldr-shim &
+    sudo -E ./weldr-shim &
     PID=$!
     trap "sudo kill $PID 2>/dev/null || true" EXIT
     SKIP_CLEANUP=0

@@ -1,19 +1,23 @@
 # weldr-shim
 
-A minimal Weldr API v1 server that wraps `image-builder` CLI to provide composer-cli compatibility.
+A minimal Weldr API v1 server that wraps `image-builder` CLI to provide composer-cli (`weldr-client`) compatibility.
 
 - **Filesystem-based state** - No database, all state stored as files in `/var/cache/weldr-shim`
 - **Single binary** - No external dependencies beyond `image-builder` CLI
+- **Compatibility** - Complatible with the official `weldr-client`
 - **Unix socket API** - Compatible with existing composer-cli configuration
-- **Subprocess execution** - Direct CLI wrapping with no image-builder internals
 - **Auto-detection** - Finds either `image-builder` or legacy `image-builder-cli` binary
-- **Stale cleanup** - Automatically detects and marks dead processes as FAILED
+- **Subprocess execution** - Direct CLI wrapping with no image-builder internals
 
 State management:
 
 - Blueprints: `/var/cache/weldr-shim/blueprints/*.json`
 - Composes: `/var/cache/weldr-shim/composes/<uuid>/`
 - Image types cache: Loaded once at startup from `image-builder list --format json`
+
+## Project status
+
+This is an **experiment**. It was tested with Fedra 43 x86_64 qcow2 image only. Output artifacts are likely named differently.
 
 ## Building
 
@@ -24,7 +28,7 @@ make
 ## Usage
 
 ```bash
-# Run (requires root for /run/weldr/api.socket)
+# Run (requires root for /run/weldr/api.socket and some image builds)
 sudo ./weldr-shim
 
 # Custom socket and cache directory
@@ -38,12 +42,13 @@ composer-cli compose start my-blueprint qcow2
 
 ## Environment Variables
 
-- `MANIFEST_ONLY=1` - Use `image-builder-cli manifest` instead of `build` (for fast testing)
+- `MANIFEST_ONLY=1` - Use `image-builder-cli manifest` instead of `build` (for fast testing). Make sure to use `sudo -E` to pass it on.
 
 ## Testing
 
+Smoke test executes all supported commands. Use `MANIFEST_ONLY` to speed up testing (does not actually build any image).
+
 ```bash
-# Manifest-only mode = fast tests
 export MANIFEST_ONLY=1
 make smoke-test
 ```
@@ -144,6 +149,6 @@ All other Weldr API endpoints return HTTP 501 Not Implemented.
 ## Dependencies
 
 - Go 1.23.9+
-- `weldr-cli`
+- `weldr-client`
 - `image-builder` or `image-builder-cli` (must be in PATH)
 
