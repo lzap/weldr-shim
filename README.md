@@ -47,16 +47,6 @@ composer-cli compose start test tar
 - `WELDR_DEFAULT_ARCH` - Override default architecture (default: auto-detected from system, e.g., `x86_64`, `aarch64`)
 - `WELDR_DEFAULT_DISTRO` - Override default distro (default: auto-detected from `/etc/os-release`, e.g., `fedora-43`, `rhel-10`)
 
-The default architecture is detected from the system's runtime architecture:
-- `amd64` → `x86_64`
-- `arm64` → `aarch64`
-- `ppc64le` → `ppc64le`
-- `s390x` → `s390x`
-
-The default distro is detected from `/etc/os-release` (ID and VERSION_ID fields).
-
-**Note:** Blueprints can specify their own `distro` and `architecture` fields. When present in the blueprint, these values take priority over the defaults. This allows per-blueprint control of target distribution and architecture.
-
 ## Testing
 
 Smoke test executes all supported commands. Use `MANIFEST_ONLY` to speed up testing (does not actually build any image).
@@ -109,7 +99,7 @@ Structure:
 - ✅ `composer-cli compose list` - List composes (basic info)
 - ✅ `composer-cli compose info <uuid>` - Show detailed compose info
 - ✅ `composer-cli compose wait <uuid>` - Wait for compose to finish
-- ✅ `composer-cli compose image <uuid>` - Download compose image
+- ✅ `composer-cli compose image <uuid>` - Download compose image (bug)
 - ✅ `composer-cli compose cancel <uuid>` - Cancel running compose
 - ✅ `composer-cli compose delete <uuid>` - Delete compose
 - ❌ `composer-cli compose log <uuid>` - Not implemented
