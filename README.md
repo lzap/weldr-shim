@@ -155,3 +155,8 @@ All other Weldr API endpoints return HTTP 501 Not Implemented.
 - `weldr-client`
 - `image-builder` or `image-builder-cli` (must be in PATH)
 
+## Related work
+
+- https://github.com/mvo5/osbuild-composer/tree/decomposer/cmd/osbuild-decomposer
+- https://github.com/drellabot/weldr-client/pull/1
+
